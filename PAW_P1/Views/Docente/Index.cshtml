@@ -1,0 +1,140 @@
+﻿@{
+    ViewBag.Title = "Docentes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Registro de Docentes</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <form id="formRegistroDocente">
+            <div class="form-group">
+                <label>Usuario</label>
+                <input class="form-control" name="Usuario" required />
+            </div>
+
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" class="form-control" name="Contrasena" required />
+            </div>
+
+            <div class="form-group">
+                <label>Nombre</label>
+                <input class="form-control" name="Nombre" required />
+            </div>
+
+            <div class="form-group">
+                <label>Correo</label>
+                <input type="email" class="form-control" name="Correo" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <span id="mensajeRegistroDocente" class="text-info" style="margin-left:10px;"></span>
+        </form>
+    </div>
+
+    <div class="col-md-6">
+        <h3>Búsqueda</h3>
+        <div class="form-inline" style="margin-bottom:10px;">
+            <input id="entradaFiltroDocente" class="form-control" placeholder="Usuario, nombre o correo" style="width:70%;" />
+            <button id="botonBuscarDocente" class="btn btn-default" type="button">Buscar</button>
+        </div>
+
+        <table class="table table-striped" id="tablaDocentes">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Usuario</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <span id="mensajeBusquedaDocente" class="text-info"></span>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+$(function () {
+    // Registro con AJAX
+    var $form = $('#formRegistroDocente');
+    var $msgReg = $('#mensajeRegistroDocente');
+
+    $form.on('submit', function (e) {
+        e.preventDefault();
+        var datos = new FormData(this);
+
+        var usuario = $form.find('[name="Usuario"]').val().trim();
+        var contrasena = $form.find('[name="Contrasena"]').val().trim();
+        var nombre = $form.find('[name="Nombre"]').val().trim();
+        var correo = $form.find('[name="Correo"]').val().trim();
+
+        if (!usuario || !contrasena || !nombre || !correo) {
+          $msgReg.removeClass('text-success').addClass('text-danger')
+                .text('Complete todos los campos obligatorios.');
+          return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("Crear","Docente")',
+            method: 'POST',
+            data: datos
+        })
+        .done(function (res) {
+            if (res.ok) {
+                $msgReg.removeClass('text-danger').addClass('text-success').text('Guardado. Id: ' + res.id);
+                $form[0].reset();
+            } else {
+                $msgReg.removeClass('text-success').addClass('text-danger').text(res.msg || 'Error al guardar.');
+            }
+        })
+        .fail(function () {
+            $msgReg.removeClass('text-success').addClass('text-danger').text('Error de red.');
+        });
+    });
+
+    // Buscar con AJAX
+    var $inputFiltro = $('#entradaFiltroDocente');
+    var $btnBuscar = $('#botonBuscarDocente');
+    var $tbody = $('#tablaDocentes tbody');
+    var $msgBusq = $('#mensajeBusquedaDocente');
+
+    function ejecutarBusquedaDocente() {
+        var searchText = $inputFiltro.val() || '';
+        $.ajax({
+            url: '@Url.Action("Buscar","Docente")',
+            method: 'GET',
+            data: { searchText: searchText }
+        })
+        .done(function (res) {
+            $tbody.empty();
+            $msgBusq.text('');
+            if (!res.ok || !res.data) {
+                $msgBusq.addClass('text-danger').text('Sin resultados.');
+                return;
+            }
+            res.data.forEach(function (doc) {
+                $tbody.append(
+                    '<tr><td>' + doc.IdDocente + '</td>' +
+                    '<td>' + doc.Usuario + '</td>' +
+                    '<td>' + doc.Nombre + '</td>' +
+                    '<td>' + doc.Correo + '</td></tr>'
+                );
+            });
+            if (res.data.length === 0) {
+                $msgBusq.text('Sin resultados.');
+            }
+        })
+        .fail(function () {
+            $msgBusq.addClass('text-danger').text('Error de red.');
+        });
+    }
+
+    $btnBuscar.on('click', ejecutarBusquedaDocente);
+    $inputFiltro.on('keyup', ejecutarBusquedaDocente);
+    ejecutarBusquedaDocente(); // primera carga
+});
+    </script>
+}

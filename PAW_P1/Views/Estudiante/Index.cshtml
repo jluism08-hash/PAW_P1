@@ -1,0 +1,163 @@
+﻿@{
+    ViewBag.Title = "Estudiantes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Registro de Estudiantes</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <form id="formRegistro">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input class="form-control" name="Nombre" required />
+            </div>
+
+            <div class="form-group">
+                <label>Apellidos</label>
+                <input class="form-control" name="Apellidos" required />
+            </div>
+
+            <div class="form-group">
+                <label>Identificación</label>
+                <input class="form-control" name="Identificacion" required />
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de nacimiento</label>
+                <input type="date" class="form-control" name="FechaNacimiento" required />
+            </div>
+
+            <div class="form-group">
+                <label>Provincia</label>
+                <input class="form-control" name="Provincia" required />
+            </div>
+
+            <div class="form-group">
+                <label>Cantón</label>
+                <input class="form-control" name="Canton" required />
+            </div>
+
+            <div class="form-group">
+                <label>Distrito</label>
+                <input class="form-control" name="Distrito" required />
+            </div>
+
+            <div class="form-group">
+                <label>Correo</label>
+                <input type="email" class="form-control" name="Correo" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <span id="mensajeRegistro" class="text-info" style="margin-left:10px;"></span>
+        </form>
+    </div>
+
+    <div class="col-md-6">
+        <h3>Búsqueda</h3>
+        <div class="form-inline" style="margin-bottom:10px;">
+            <input id="entradaFiltroBusqueda" class="form-control" placeholder="Nombre, apellidos o identificación" style="width:70%;" />
+            <button id="botonBuscar" class="btn btn-default" type="button">Buscar</button>
+        </div>
+
+        <table class="table table-striped" id="tablaResultados">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre completo</th>
+                    <th>Identificación</th>
+                    <th>Correo</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <span id="mensajeBusqueda" class="text-info"></span>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+$(function () {
+    // Registrar con AJAX
+    var $form = $('#formRegistro');
+    var $msgReg = $('#mensajeRegistro');
+
+    $form.on('submit', function (e) {
+        e.preventDefault();
+        var formData = new FormData(this);
+
+        // Validaciones
+        var nombre = $form.find('[name="Nombre"]').val().trim();
+        var apellidos = $form.find('[name="Apellidos"]').val().trim();
+        var identificacion = $form.find('[name="Identificacion"]').val().trim();
+        var correo = $form.find('[name="Correo"]').val().trim();
+
+        if (!nombre || !apellidos || !identificacion || !correo) {
+            $msgReg.removeClass('text-success').addClass('text-danger').text('Complete todos los campos obligatorios.');
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("Crear","Estudiante")',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false
+        })
+        .done(function (res) {
+            if (res.ok) {
+                $msgReg.removeClass('text-danger').addClass('text-success').text('Guardado. Id: ' + res.id);
+                $form[0].reset();
+            } else {
+                $msgReg.removeClass('text-success').addClass('text-danger').text(res.msg || 'Error al guardar.');
+            }
+        })
+        .fail(function () {
+            $msgReg.removeClass('text-success').addClass('text-danger').text('Error de red.');
+        });
+    });
+
+    // Buscar con AJAX
+    var $inputFiltro = $('#entradaFiltroBusqueda');
+    var $btnBuscar = $('#botonBuscar');
+    var $tbody = $('#tablaResultados tbody');
+    var $msgBusq = $('#mensajeBusqueda');
+
+    function ejecutarBusqueda() {
+        var searchText = $inputFiltro.val() || '';
+        $.ajax({
+            url: '@Url.Action("Buscar","Estudiante")',
+            method: 'GET',
+            data: { searchText: searchText }
+        })
+        .done(function (res) {
+            $tbody.empty();
+            $msgBusq.text('');
+            if (!res.ok || !res.data) {
+                $msgBusq.addClass('text-danger').text('Sin resultados.');
+                return;
+            }
+            res.data.forEach(function (est) {
+                $tbody.append(
+                    '<tr><td>' + est.IdEstudiante + '</td>' +
+                    '<td>' + est.Nombre + ' ' + est.Apellidos + '</td>' +
+                    '<td>' + est.Identificacion + '</td>' +
+                    '<td>' + est.Correo + '</td></tr>'
+                );
+            });
+            if (res.data.length === 0) {
+                $msgBusq.text('Sin resultados.');
+            }
+        })
+        .fail(function () {
+            $msgBusq.addClass('text-danger').text('Error de red.');
+        });
+    }
+
+    $btnBuscar.on('click', ejecutarBusqueda);
+    $inputFiltro.on('keyup', ejecutarBusqueda);
+    ejecutarBusqueda(); // primera carga
+});
+    </script>
+}
+

@@ -1,0 +1,112 @@
+﻿@{
+    ViewBag.Title = "Cuatrimestres";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Gestión de Cuatrimestres</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <form id="formCuatrimestre">
+            <div class="form-group">
+                <label>Nombre del cuatrimestre</label>
+                <input class="form-control" name="Nombre" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <span id="mensajeCuatrimestre" class="text-info" style="margin-left:10px;"></span>
+        </form>
+    </div>
+
+    <div class="col-md-6">
+        <h3>Búsqueda</h3>
+        <div class="form-inline" style="margin-bottom:10px;">
+            <input id="entradaFiltroCuatrimestre" class="form-control" placeholder="Nombre" style="width:70%;" />
+            <button id="botonBuscarCuatrimestre" class="btn btn-default" type="button">Buscar</button>
+        </div>
+
+        <table class="table table-striped" id="tablaCuatrimestres">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <span id="mensajeBusquedaCuatrimestre" class="text-info"></span>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+$(function () {
+    // Regisrtro con AJAX
+    var $form = $('#formCuatrimestre');
+    var $msg = $('#mensajeCuatrimestre');
+
+    $form.on('submit', function (e) {
+        e.preventDefault();
+
+        var nombre = $form.find('[name="Nombre"]').val().trim();
+        if (!nombre) {
+            $msg.removeClass('text-success').addClass('text-danger').text('Ingrese el nombre.');
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("Crear","Cuatrimestre")',
+            method: 'POST',
+            data: { Nombre: nombre }
+        })
+        .done(function (res) {
+            if (res.ok) {
+                $msg.removeClass('text-danger').addClass('text-success').text('Guardado. Id: ' + res.id);
+                $form[0].reset();
+                ejecutarBusquedaCuatrimestre();
+            } else {
+                $msg.removeClass('text-success').addClass('text-danger').text('Error al guardar.');
+            }
+        })
+        .fail(function () {
+            $msg.removeClass('text-success').addClass('text-danger').text('Error de red.');
+        });
+    });
+
+    // Busqueda con AJAX
+    var $inputFiltro = $('#entradaFiltroCuatrimestre');
+    var $btnBuscar = $('#botonBuscarCuatrimestre');
+    var $tbody = $('#tablaCuatrimestres tbody');
+    var $msgBusq = $('#mensajeBusquedaCuatrimestre');
+
+    function ejecutarBusquedaCuatrimestre() {
+        var searchText = $inputFiltro.val() || '';
+        $.ajax({
+            url: '@Url.Action("Buscar","Cuatrimestre")',
+            method: 'GET',
+            data: { searchText: searchText }
+        })
+        .done(function (res) {
+            $tbody.empty();
+            $msgBusq.text('');
+            if (!res.ok || !res.data) {
+                $msgBusq.addClass('text-danger').text('Sin resultados.');
+                return;
+            }
+            res.data.forEach(function (item) {
+                $tbody.append('<tr><td>' + item.IdCuatrimestre + '</td><td>' + item.Nombre + '</td></tr>');
+            });
+            if (res.data.length === 0)
+                $msgBusq.text('Sin resultados.');
+        })
+        .fail(function () {
+            $msgBusq.addClass('text-danger').text('Error de red.');
+        });
+    }
+
+    $btnBuscar.on('click', ejecutarBusquedaCuatrimestre);
+    $inputFiltro.on('keyup', ejecutarBusquedaCuatrimestre);
+    ejecutarBusquedaCuatrimestre(); // primera carga
+});
+    </script>
+}

@@ -16,7 +16,7 @@ namespace PAW_P1
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                defaults: new { controller = "Estudiante", action = "Index", id = UrlParameter.Optional }
             );
         }
     }

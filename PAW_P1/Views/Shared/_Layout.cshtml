@@ -18,9 +18,16 @@
             </button>
             <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Inicio", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Acerca de", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Contacto", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Estudiantes", "Index", "Estudiante", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Docentes", "Index", "Docente", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Cuatrimestres", "Index", "Cuatrimestre", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Cursos", "Index", "Curso", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Evaluaciones", "Index", "Evaluacion", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Estadísticas", "Index", "Estadísticas", new { area = "" }, new { @class = "nav-link" })</li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li>@Html.ActionLink("Iniciar sesión", "Login", "Auth", new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Salir", "Logout", "Auth", new { @class = "nav-link" })</li>
                 </ul>
             </div>
         </div>

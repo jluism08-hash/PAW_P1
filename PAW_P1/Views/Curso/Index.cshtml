@@ -1,0 +1,130 @@
+﻿@{
+    ViewBag.Title = "Cursos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Gestión de Cursos</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <form id="formCurso">
+            <div class="form-group">
+                <label>Nombre del curso</label>
+                <input class="form-control" name="Nombre" required />
+            </div>
+
+            <div class="form-group">
+                <label>Cuatrimestre</label>
+                <select class="form-control" name="IdCuatrimestre" id="selectCuatrimestre" required></select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <span id="mensajeCurso" class="text-info" style="margin-left:10px;"></span>
+        </form>
+    </div>
+
+    <div class="col-md-6">
+        <h3>Búsqueda</h3>
+        <div class="form-inline" style="margin-bottom:10px;">
+            <input id="entradaFiltroCurso" class="form-control" placeholder="Nombre o cuatrimestre" style="width:70%;" />
+            <button id="botonBuscarCurso" class="btn btn-default" type="button">Buscar</button>
+        </div>
+
+        <table class="table table-striped" id="tablaCursos">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Curso</th>
+                    <th>Cuatrimestre</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <span id="mensajeBusquedaCurso" class="text-info"></span>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+$(function () {
+    // Cargar cuatrimestres al iniciar
+    function cargarCuatrimestres() {
+        $.get('@Url.Action("Buscar","Cuatrimestre")', function (res) {
+            if (res.ok && res.data) {
+                var $select = $('#selectCuatrimestre');
+                $select.empty();
+                res.data.forEach(function (c) {
+                    $select.append('<option value="' + c.IdCuatrimestre + '">' + c.Nombre + '</option>');
+                });
+            }
+        });
+    }
+
+    cargarCuatrimestres();
+
+    // Registrar con AJAX
+    var $form = $('#formCurso');
+    var $msg = $('#mensajeCurso');
+
+    $form.on('submit', function (e) {
+        e.preventDefault();
+        var datos = new FormData(this);
+        var nombre = datos.get('Nombre').trim();
+        var idCuatrimestre = datos.get('IdCuatrimestre');
+
+        if (!nombre || !idCuatrimestre) {
+            $msg.removeClass('text-success').addClass('text-danger').text('Complete los datos.');
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("Crear","Curso")',
+            method: 'POST',
+            data: datos
+        })
+        .done(function (res) {
+            if (res.ok) {
+                $msg.removeClass('text-danger').addClass('text-success').text('Guardado. Id: ' + res.id);
+                $form[0].reset();
+                ejecutarBusquedaCurso();
+            } else {
+                $msg.removeClass('text-success').addClass('text-danger').text('Error al guardar.');
+            }
+        })
+        .fail(function () {
+            $msg.removeClass('text-success').addClass('text-danger').text('Error de red.');
+        });
+    });
+
+    // Búsqueda
+    var $inputFiltro = $('#entradaFiltroCurso');
+    var $btnBuscar = $('#botonBuscarCurso');
+    var $tbody = $('#tablaCursos tbody');
+    var $msgBusq = $('#mensajeBusquedaCurso');
+
+    function ejecutarBusquedaCurso() {
+        var searchText = $inputFiltro.val() || '';
+        $.get('@Url.Action("Buscar","Curso")', { searchText: searchText }, function (res) {
+            $tbody.empty();
+            $msgBusq.text('');
+            if (!res.ok || !res.data) {
+                $msgBusq.addClass('text-danger').text('Sin resultados.');
+                return;
+            }
+            res.data.forEach(function (curso) {
+                $tbody.append('<tr><td>' + curso.IdCurso + '</td><td>' + curso.Nombre + '</td><td>' + curso.IdCuatrimestre + '</td></tr>');
+            });
+            if (res.data.length === 0)
+                $msgBusq.text('Sin resultados.');
+        })
+        .fail(function () {
+            $msgBusq.addClass('text-danger').text('Error de red.');
+        });
+    }
+
+    $btnBuscar.on('click', ejecutarBusquedaCurso);
+    $inputFiltro.on('keyup', ejecutarBusquedaCurso);
+    ejecutarBusquedaCurso();
+});
+    </script>
+}
