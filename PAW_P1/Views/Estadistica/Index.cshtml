@@ -1,0 +1,119 @@
+﻿@using PAW_P1.Models
+@{
+    ViewBag.Title = "Estadísticas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var cuatris = (IEnumerable<Cuatrimestre>)(ViewBag.Cuatrimestres ?? new List<Cuatrimestre>());
+    var cursos = (IEnumerable<Curso>)(ViewBag.Cursos ?? new List<Curso>());
+    int? cuatriSel = ViewBag.CuatrimestreId as int?;
+    int? cursoSel = ViewBag.CursoId as int?;
+}
+
+<h2>Estadísticas generales</h2>
+
+<div class="row" style="margin-bottom:15px;">
+    <div class="col-md-4">
+        <label>Cuatrimestre</label>
+        <select id="filtroCuatrimestre" class="form-control">
+            <option value="">(Todos)</option>
+            @foreach (var c in cuatris)
+            {
+                <option value="@c.IdCuatrimestre" @(cuatriSel == c.IdCuatrimestre ? "selected" : "")>@c.Nombre</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label>Curso</label>
+        <select id="filtroCurso" class="form-control">
+            <option value="">(Todos)</option>
+            @foreach (var c in cursos)
+            {
+                <option value="@c.IdCurso" @(cursoSel == c.IdCurso ? "selected" : "")>@c.Nombre</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label>&nbsp;</label>
+        <button id="btnAplicar" class="btn btn-primary btn-block">Aplicar filtros</button>
+    </div>
+</div>
+
+<div class="row text-center" style="margin-bottom:20px;">
+    <div class="col-md-6">
+        <div class="alert alert-info">
+            <h4>Total de estudiantes</h4>
+            <h3>@ViewBag.TotalEstudiantes</h3>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="alert alert-success">
+            <h4>Promedio general de notas</h4>
+            <h3>@String.Format("{0:N2}", ViewBag.PromedioNotas)</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Cursos por cuatrimestre</h4>
+        <canvas id="graficoCursos"></canvas>
+    </div>
+    <div class="col-md-6">
+        <h4>Evaluaciones por estado</h4>
+        <canvas id="graficoEstados"></canvas>
+    </div>
+</div>
+
+@section scripts{
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+$(function () {
+  var grafCursos, grafEstados;
+
+  function construirQuery() {
+    var cId = $('#filtroCuatrimestre').val();
+    var cursoId = $('#filtroCurso').val();
+    var params = [];
+    if (cId) params.push('cuatrimestreId=' + encodeURIComponent(cId));
+    if (cursoId) params.push('cursoId=' + encodeURIComponent(cursoId));
+    return params.length ? '?' + params.join('&') : '';
+  }
+
+  function cargarTarjetas() {
+    window.location = '@Url.Action("Index","Estadistica")' + construirQuery();
+  }
+
+  function cargarGraficos() {
+    var cId = $('#filtroCuatrimestre').val();
+    var cursoId = $('#filtroCurso').val();
+
+    $.get('@Url.Action("CursosPorCuatrimestre","Estadistica")', { cuatrimestreId: cId })
+      .done(function (data) {
+        var labels = data.map(function(d){ return d.Etiqueta; });
+        var valores = data.map(function(d){ return d.Valor; });
+        if (grafCursos) grafCursos.destroy();
+        grafCursos = new Chart(document.getElementById('graficoCursos'), {
+          type: 'bar',
+          data: { labels: labels, datasets: [{ label: 'Cursos', data: valores }] },
+          options: { responsive: true }
+        });
+      });
+
+    $.get('@Url.Action("EvaluacionesPorEstado","Estadistica")', { cuatrimestreId: cId, cursoId: cursoId })
+      .done(function (data) {
+        var labels = data.map(function(d){ return d.Etiqueta; });
+        var valores = data.map(function(d){ return d.Valor; });
+        if (grafEstados) grafEstados.destroy();
+        grafEstados = new Chart(document.getElementById('graficoEstados'), {
+          type: 'pie',
+          data: { labels: labels, datasets: [{ label: 'Evaluaciones', data: valores }] },
+          options: { responsive: true }
+        });
+      });
+  }
+
+  $('#btnAplicar').on('click', function(e){ e.preventDefault(); cargarTarjetas(); });
+  cargarGraficos();
+});
+    </script>
+}

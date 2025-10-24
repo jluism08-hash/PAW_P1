@@ -122,6 +122,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\CursoController.cs" />
     <Compile Include="Controllers\DocenteController.cs" />
+    <Compile Include="Controllers\EstadisticaController.cs" />
     <Compile Include="Controllers\EstudianteController.cs" />
     <Compile Include="Controllers\EvaluacionController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="Data\CuatrimestreDAO.cs" />
     <Compile Include="Data\CursoDAO.cs" />
     <Compile Include="Data\DocenteDAO.cs" />
+    <Compile Include="Data\EstadisticaDAO.cs" />
     <Compile Include="Data\EstudianteDAO.cs" />
     <Compile Include="Data\EvaluacionDAO.cs" />
     <Compile Include="Global.asax.cs">
@@ -141,6 +143,7 @@
     <Compile Include="Models\Docente.cs" />
     <Compile Include="Models\Estudiante.cs" />
     <Compile Include="Models\Evaluacion.cs" />
+    <Compile Include="Models\GraficoDato.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -200,6 +203,7 @@
     <Content Include="Views\Curso\Index.cshtml" />
     <Content Include="Views\Evaluacion\Index.cshtml" />
     <Content Include="Views\Login\Login.cshtml" />
+    <Content Include="Views\Estadistica\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
