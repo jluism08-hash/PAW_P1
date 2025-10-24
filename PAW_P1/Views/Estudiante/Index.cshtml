@@ -128,9 +128,10 @@ $(function () {
         $.ajax({
             url: '@Url.Action("Buscar","Estudiante")',
             method: 'GET',
-            data: { searchText: searchText }
+            data: { filtro: searchText }
         })
-        .done(function (res) {
+            .done(function (res) {
+            console.log(res);
             $tbody.empty();
             $msgBusq.text('');
             if (!res.ok || !res.data) {

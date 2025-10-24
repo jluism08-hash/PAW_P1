@@ -122,7 +122,7 @@ $(function () {
 
     function ejecutarBusquedaEvaluacion() {
         var searchText = $inputFiltro.val() || '';
-        $.get('@Url.Action("Buscar","Evaluacion")', { searchText: searchText }, function (res) {
+        $.get('@Url.Action("Buscar","Evaluacion")', { filtro: searchText }, function (res) {
             $tbody.empty();
             $msgBusq.text('');
             if (!res.ok || !res.data) {

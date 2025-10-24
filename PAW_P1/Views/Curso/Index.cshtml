@@ -106,7 +106,7 @@ $(function () {
 
     function ejecutarBusquedaCurso() {
         var searchText = $inputFiltro.val() || '';
-        $.get('@Url.Action("Buscar","Curso")', { searchText: searchText }, function (res) {
+        $.get('@Url.Action("Buscar","Curso")', { filtro: searchText }, function (res) {
             $tbody.empty();
             $msgBusq.text('');
             if (!res.ok || !res.data) {

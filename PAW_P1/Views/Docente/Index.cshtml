@@ -108,7 +108,7 @@ $(function () {
         $.ajax({
             url: '@Url.Action("Buscar","Docente")',
             method: 'GET',
-            data: { searchText: searchText }
+            data: { filtro: searchText }
         })
         .done(function (res) {
             $tbody.empty();
