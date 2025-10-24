@@ -59,5 +59,58 @@ namespace PAW_P1.Data
             }
             return lista;
         }
+
+        public Docente ObtenerPorUsuario(string usuario)
+        {
+            using (var connection = Connection.GetConnection())
+            using (var command = new SqlCommand(@"
+                SELECT TOP 1 IdDocente, Usuario, Contrasena, Nombre, Correo
+                FROM Docente
+                WHERE Usuario = @Usuario;", connection))
+            {
+                command.Parameters.AddWithValue("@Usuario", usuario);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    if (!reader.Read()) return null;
+
+                    return new Docente
+                    {
+                        IdDocente = reader.GetInt32(0),
+                        Usuario = reader.GetString(1),
+                        Contrasena = reader.GetString(2),
+                        Nombre = reader.GetString(3),
+                        Correo = reader.GetString(4)
+                    };
+                }
+            }
+        }
+
+        public Docente ValidarCredenciales(string usuario, string contrasena)
+        {
+            using (var connection = Connection.GetConnection())
+            using (var command = new SqlCommand(@"
+                SELECT TOP 1 IdDocente, Usuario, Contrasena, Nombre, Correo
+                FROM Docente
+                WHERE Usuario = @Usuario AND Contrasena = @Contrasena;", connection))
+            {
+                command.Parameters.AddWithValue("@Usuario", usuario);
+                command.Parameters.AddWithValue("@Contrasena", contrasena);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    if (!reader.Read()) return null;
+
+                    return new Docente
+                    {
+                        IdDocente = reader.GetInt32(0),
+                        Usuario = reader.GetString(1),
+                        Contrasena = reader.GetString(2),
+                        Nombre = reader.GetString(3),
+                        Correo = reader.GetString(4)
+                    };
+                }
+            }
+        }
     }
 }

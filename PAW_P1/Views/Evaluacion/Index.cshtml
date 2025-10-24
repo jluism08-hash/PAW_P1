@@ -97,7 +97,9 @@ $(function () {
         $.ajax({
             url: '@Url.Action("Crear","Evaluacion")',
             method: 'POST',
-            data: datos
+            data: datos,
+            processData: false,
+            contentType: false
         })
         .done(function (res) {
             if (res.ok) {
@@ -127,6 +129,7 @@ $(function () {
                 $msgBusq.addClass('text-danger').text('Sin resultados.');
                 return;
             }
+            console.log(res);
             res.data.forEach(function (ev) {
                 $tbody.append(
                     '<tr><td>' + ev.IdEvaluacion + '</td>' +

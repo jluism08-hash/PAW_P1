@@ -125,6 +125,7 @@
     <Compile Include="Controllers\EstudianteController.cs" />
     <Compile Include="Controllers\EvaluacionController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Data\Connection.cs" />
     <Compile Include="Data\CuatrimestreDAO.cs" />
     <Compile Include="Data\CursoDAO.cs" />
@@ -198,7 +199,7 @@
     <Content Include="Views\Cuatrimestre\Index.cshtml" />
     <Content Include="Views\Curso\Index.cshtml" />
     <Content Include="Views\Evaluacion\Index.cshtml" />
-    <Content Include="Views\Shared\_Menu.cshtml" />
+    <Content Include="Views\Login\Login.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

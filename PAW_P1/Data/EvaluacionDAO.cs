@@ -36,14 +36,21 @@ namespace PAW_P1.Data
             var lista = new List<Evaluacion>();
             using (var connection = Connection.GetConnection())
             using (var command = new SqlCommand(@"
-                SELECT E.IdEvaluacion, Es.Nombre AS NombreEstudiante, C.Nombre AS NombreCurso,
-                       E.Nota, E.Observaciones, E.Participacion, E.Estado
-                FROM Evaluacion E
-                INNER JOIN Estudiante Es ON E.IdEstudiante = Es.IdEstudiante
-                INNER JOIN Curso C ON E.IdCurso = C.IdCurso
-                WHERE (@texto IS NULL OR @texto = '')
-                   OR (Es.Nombre LIKE @like OR C.Nombre LIKE @like)
-                ORDER BY E.IdEvaluacion DESC;", connection))
+        SELECT  E.IdEvaluacion,
+                Es.Nombre  AS NombreEstudiante,
+                C.Nombre   AS NombreCurso,
+                E.Nota,
+                E.Observaciones,
+                E.Participacion,
+                E.Estado,
+                E.IdEstudiante,
+                E.IdCurso
+        FROM Evaluacion E
+        INNER JOIN Estudiante Es ON E.IdEstudiante = Es.IdEstudiante
+        INNER JOIN Curso C       ON E.IdCurso = C.IdCurso
+        WHERE (@texto IS NULL OR @texto = '')
+           OR (Es.Nombre LIKE @like OR C.Nombre LIKE @like)
+        ORDER BY E.IdEvaluacion DESC;", connection))
             {
                 command.Parameters.AddWithValue("@texto", textoBusqueda ?? string.Empty);
                 command.Parameters.AddWithValue("@like", $"%{textoBusqueda}%");
@@ -55,9 +62,14 @@ namespace PAW_P1.Data
                         lista.Add(new Evaluacion
                         {
                             IdEvaluacion = reader.GetInt32(0),
+                            NombreEstudiante = reader.GetString(1),
+                            NombreCurso = reader.GetString(2),
+                            Nota = reader.GetDecimal(3),
                             Observaciones = reader.IsDBNull(4) ? "" : reader.GetString(4),
                             Participacion = reader.IsDBNull(5) ? "" : reader.GetString(5),
-                            Estado = reader.IsDBNull(6) ? "" : reader.GetString(6)
+                            Estado = reader.IsDBNull(6) ? "" : reader.GetString(6),
+                            IdEstudiante = reader.GetInt32(7),
+                            IdCurso = reader.GetInt32(8)
                         });
                     }
                 }

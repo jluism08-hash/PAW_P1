@@ -16,6 +16,8 @@ namespace PAW_P1.Controllers
         // GET: Curso
         public ActionResult Index()
         {
+            if (Session["Docente"] == null)
+                return RedirectToAction("Login", "Login");
             return View();
         }
 
